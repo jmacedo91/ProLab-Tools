@@ -5,7 +5,6 @@ import solucoes_acidas
 
 
 def prolab_tools():
-
     msg_abertura()
     menu_calculadoras()
     parametro = numero_parametro()
@@ -19,7 +18,11 @@ def msg_abertura():
 
 
 def menu_calculadoras():
-    print('(1) - Teor de Umidade\n(2) - Teor de Cinzas\n(3) - Resíduo após evaporação\n(4) - Soluções Ácidas')
+    print('(1) - Teor de Umidade\n'
+          '(2) - Teor de Cinzas\n'
+          '(3) - Resíduo após evaporação\n'
+          '(4) - Soluções Ácidas\n'
+          '(5) - Sair')
 
 
 def numero_parametro():
@@ -28,17 +31,19 @@ def numero_parametro():
 
 def selecao(parametro):
     if parametro == 1:
-        print('Teor de Umidade selecionado')
+        print('Teor de Umidade selecionado.')
         teor_de_umidade.teor_umidade()
     elif parametro == 2:
-        print('Teor de Cinzas selecionado')
+        print('Teor de Cinzas selecionado.')
         teor_de_cinzas.teor_cinzas()
     elif parametro == 3:
-        print('Resíduo após evaporação selecionado')
+        print('Resíduo após evaporação selecionado.')
         residuo_apos_evaporacao.residuo()
     elif parametro == 4:
-        print('Soluções Ácidas selecionado')
+        print('Soluções Ácidas selecionado.')
         solucoes_acidas.volume()
+    elif parametro == 5:
+        print('Até mais.')
     else:
         print('O número digitado não corresponde as opções\n\n')
         prolab_tools()
