@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Laboratório de Cálculos Químicos</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #fff;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: #2c3e50;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .calculator {
+            background: #34495e;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background: #3498db;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .tab-button.active {
+            background: #e67e22;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 200px;
+            background: #2c3e50;
+            border: 1px solid #3498db;
+            color: white;
+            border-radius: 4px;
+        }
+
+        button {
+            background: #27ae60;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+
+        .result {
+            padding: 15px;
+            background: #2980b9;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .formula {
+            color: #bdc3c7;
+            font-size: 0.9em;
+            margin: 10px 0;
+        }
+
+        .paste-area {
+        margin: 15px 0;
+        position: relative;
+        }
+
+        #batchInput {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            background: #2c3e50;
+            border: 2px dashed #3498db;
+            color: white;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-bottom: 10px;
+        }
+
+        .result-table {
+            margin-top: 20px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #34495e;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #3498db;
+            text-align: center;
+        }
+
+        th {
+            background: #2c3e50;
+            position: sticky;
+            top: 0;
+        }
+
+        .export {
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        .export button {
+            background: #e67e22;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧪 Laboratório de Cálculos Químicos</h1>
+        <p>Calculadoras para análises químicas</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-button active" onclick="showTab('moisture')">Umidade</button>
+        <button class="tab-button" onclick="showTab('residue')">Resíduo</button>
+        <button class="tab-button" onclick="showTab('nitrogen')">Nitrogênio</button>
+        <button class="tab-button" onclick="showTab('solution')">Soluções</button>
+    </div>
+
+    <!-- Calculadora de Umidade -->
+    <div id=moisture class="calculator">
+        <h2>Cálculo de Teor de Umidade (Método Direto)</h2>
+        <input type="number" id="massa_inicial" placeholder="Massa inicial úmida (g)" step="0.0001"><br>
+        <input type="number" id="capsula" placeholder="Peso da cápsula vazia (g)" step="0.0001"><br>
+        <input type="number" id="capsula_seca" placeholder="Peso cápsula + massa seca (g)" step="0.0001"><br>
+        <button onclick="calcularUmidade()">Calcular Umidade</button>
+        
+        <div class="result" id="resultado">
+            Fórmula utilizada:<br>
+            [(1 - (Massa Final / Massa Inicial)) × 100]<br>
+            Onde:<br>
+            Massa Final = (Cápsula + Seca) - Cápsula
+        </div>
+    </div>
+
+    <!-- Calculadora de Resíduo -->
+    <div id="residue" class="calculator" style="display:none">
+        <h2>Resíduo Pós-Evaporação (mg/L)</h2>
+        <input type="number" id="capsulaResiduo" placeholder="Cápsula + resíduo seco (g)" step="0.0001">
+        <input type="number" id="capsulaVazia" placeholder="Cápsula vazia (g)" step="0.0001">
+        <input type="number" id="volumeAgua" placeholder="Volume de água (mL)" step="0.1">
+        <button onclick="calculateResidue()">Calcular</button>
+        <div class="formula">
+            Fórmula: [(Cápsula+Resíduo - Cápsula) / Volume(mL)] × 1.000.000
+        </div>
+        <div class="result" id="residueResult"></div>
+    </div>
+
+    <!-- Calculadora de Nitrogênio -->
+    <div id="nitrogen" class="calculator" style="display:none">
+            <h2>Cálculo em Lote de Nitrogênio</h2>
+            
+            <div class="paste-area">
+                <textarea id="batchInput" placeholder="Cole os dados da tabela aqui (Formato: Tipo[TAB]Massa)
+        Exemplo:
+        Nitrato    150
+        Nitrito    200
+        Nitrato    175"></textarea>
+                <button onclick="processBatch()">Processar 20 Amostras</button>
+            </div>
+
+            <div class="formula">
+                Fórmula: 
+                Nitrato → N% = (14.01 / 62.0049) × massa
+                Nitrito → N% = (14.01 / 46.0055) × massa
+            </div>
+
+            <div class="result-table" id="batchResults"></div>
+
+            <div class="export">
+                <button onclick="exportToCSV()">Exportar para CSV</button>
+            </div>
+    </div>
+
+    <!-- Calculadora de Soluções -->
+    <div id="solution" class="calculator" style="display:none">
+        <h2>Preparo de Soluções Ácidas</h2>
+        
+        <div class="input-group">
+            <label>Densidade do Ácido (g/mL):</label>
+            <input type="number" id="density" step="0.001" placeholder="Ex: 1.18 para HCl">
+        </div>
+        
+        <div class="input-group">
+            <label>Pureza do Ácido (%):</label>
+            <input type="number" id="purity" step="0.1" placeholder="Ex: 37 para HCl 37%">
+        </div>
+        
+        <div class="input-group">
+            <label>Massa Molar (g/mol):</label>
+            <input type="number" id="molarMass" step="0.01" placeholder="Ex: 36.46 para HCl">
+        </div>
+        
+        <div class="input-group">
+            <label>Molaridade Desejada (M):</label>
+            <input type="number" id="desiredMolarity" step="0.01" placeholder="Ex: 0.1 para 0.1M">
+        </div>
+        
+        <div class="input-group">
+            <label>Volume Final (L):</label>
+            <input type="number" id="desiredVolume" step="0.01" placeholder="Ex: 1 para 1L">
+        </div>
+        
+        <button onclick="calculateSolution()">Calcular Volume Necessário</button>
+        
+        <div class="result" id="solutionResult">
+            Fórmula:<br>
+            Volume (L) = [(M × V × MM) / (Densidade × Pureza)] × 100<br>
+            Onde:<br>
+            M = Molaridade, V = Volume, MM = Massa Molar
+        </div>
+    </div>
+
+    <script>
+        // Funções para alternar abas
+        function showTab(tabName) {
+            document.querySelectorAll('.calculator').forEach(div => div.style.display = 'none');
+            document.getElementById(tabName).style.display = 'block';
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // Cálculo de Umidade
+        function calcularUmidade() {
+            // Obter valores dos inputs
+            const MI = parseFloat(document.getElementById('massa_inicial').value);
+            const C = parseFloat(document.getElementById('capsula').value);
+            const CS = parseFloat(document.getElementById('capsula_seca').value);
+
+            // Calcular massa final seca
+            const MF = CS - C;
+
+            // Validar valores
+            if(MI <= 0 || MF <= 0 || MF > MI) {
+                alert("Valores inválidos! Verifique as medidas.");
+                return;
+            }
+
+            // Calcular umidade
+            const umidade = (1 - (MF / MI)) * 100;
+
+            // Exibir resultado
+            document.getElementById('resultado').innerHTML = `
+                <strong>Resultado:</strong><br>
+                Teor de umidade: ${umidade.toFixed(4)}%<br><br>
+                
+                <strong>Detalhamento:</strong><br>
+                Massa inicial úmida: ${MI.toFixed(4)} g<br>
+                Massa final seca: ${MF.toFixed(4)} g<br>
+                Água perdida: ${(MI - MF).toFixed(4)} g
+            `;
+        }
+
+        // Cálculo de Resíduo
+        function calculateResidue() {
+            // Obter valores dos inputs
+            const capsulaResiduo = parseFloat(document.getElementById('capsulaResiduo').value);
+            const capsulaVazia = parseFloat(document.getElementById('capsulaVazia').value);
+            const volumeAgua = parseFloat(document.getElementById('volumeAgua').value);
+
+            // Validar entradas
+            if (isNaN(capsulaResiduo) || isNaN(capsulaVazia) || isNaN(volumeAgua)) {
+                alert("Preencha todos os campos com valores numéricos!");
+                return;
+            }
+
+            if (volumeAgua <= 0) {
+                alert("O volume deve ser maior que zero!");
+                return;
+            }
+
+            // Cálculos
+            const residuoSeco = capsulaResiduo - capsulaVazia;
+            const concentracao = (residuoSeco / volumeAgua) * 1000000;
+
+            // Exibir resultado
+            document.getElementById('residueResult').innerHTML = `
+                Resultado: ${concentracao.toFixed(2)} mg/L<br><br>
+                <em>Detalhamento:</em><br>
+                • Massa do resíduo: ${residuoSeco.toFixed(4)} g<br>
+                • Volume analisado: ${volumeAgua} mL<br>
+                • Fator de conversão: 1.000.000 (g → mg / mL → L)
+            `;
+        }
+
+        // Cálculo de Nitrogênio
+        let batchData = [];
+
+        function processBatch() {
+            const input = document.getElementById('batchInput').value;
+            const lines = input.split('\n');
+            batchData = [];
+
+            lines.slice(0, 20).forEach((line, index) => {
+                const [rawType, rawMass] = line.split('\t').map(item => item.trim());
+                
+                // Validação e normalização
+                const type = validateType(rawType);
+                const mass = parseFloat(rawMass?.replace(',', '.'));
+
+                if (!type || isNaN(mass)) {
+                    batchData.push({
+                        linha: index + 1,
+                        status: 'Erro',
+                        detalhes: !type ? 'Tipo inválido' : 'Massa inválida'
+                    });
+                    return;
+                }
+
+                // Cálculo
+                const mm = type === 'nitrato' ? 62.0049 : 46.0055;
+                const result = ((14.01 / mm) * mass).toFixed(2);
+
+                batchData.push({
+                    linha: index + 1,
+                    tipo: type.toUpperCase(),
+                    massa: `${mass} mg`,
+                    nitrogenio: `${result} mg N`,
+                    status: 'OK'
+                });
+            });
+
+            renderBatchResults();
+        }
+
+        function validateType(input) {
+            const types = {
+                'nitrato': true,
+                'nitrito': true,
+                'nitrate': true,
+                'nitrite': true
+            };
+            return types[input.toLowerCase()] ? input.toLowerCase().replace('e','o') : null;
+        }
+
+        function renderBatchResults() {
+            const table = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Amostra</th>
+                            <th>Tipo</th>
+                            <th>Massa</th>
+                            <th>Nitrogênio</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${batchData.map(row => `
+                            <tr class="${row.status === 'Erro' ? 'error-row' : ''}">
+                                <td>${row.linha}</td>
+                                <td>${row.tipo || '-'}</td>
+                                <td>${row.massa || '-'}</td>
+                                <td>${row.nitrogenio || '-'}</td>
+                                <td>${row.status}<br><small>${row.detalhes || ''}</small></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('batchResults').innerHTML = table;
+        }
+
+        function exportToCSV() {
+            const csvContent = [
+                ['Amostra', 'Tipo', 'Massa', 'Nitrogênio', 'Status'],
+                ...batchData.map(row => [
+                    row.linha,
+                    row.tipo,
+                    row.massa,
+                    row.nitrogenio,
+                    row.status + (row.detalhes ? ` (${row.detalhes})` : '')
+                ])
+            ].map(e => e.join(",")).join("\n");
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'resultados_nitrogenio.csv';
+            link.click();
+        }
+
+        // Cálculo de Soluções
+        function calculateSolution() {
+            // Obter valores
+            const d = parseFloat(document.getElementById('density').value);
+            const p = parseFloat(document.getElementById('purity').value) / 100;
+            const mm = parseFloat(document.getElementById('molarMass').value);
+            const M = parseFloat(document.getElementById('desiredMolarity').value);
+            const V = parseFloat(document.getElementById('desiredVolume').value);
+
+            // Validar
+            if ([d, p, mm, M, V].some(isNaN)) {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            // Calcular
+            const volume = (M * V * mm) / (d * p);
+            const volume_mL = volume.toFixed(2);
+            const volume_L = (volume / 1000).toFixed(4);
+
+            // Resultado
+            document.getElementById('solutionResult').innerHTML = `
+                <strong>Resultado:</strong><br>
+                Volume necessário: ${volume_L} L (${volume_mL} mL)<br><br>
+                
+                <em>Etapas do cálculo:</em><br>
+                1. Mols necessários = ${M} M × ${V} L = ${(M*V).toFixed(4)} mol<br>
+                2. Massa pura = ${(M*V).toFixed(4)} mol × ${mm} g/mol = ${(M*V*mm).toFixed(4)} g<br>
+                3. Massa real (ajustada à pureza) = ${(M*V*mm).toFixed(4)} g / ${p} = ${(M*V*mm/p).toFixed(4)} g<br>
+                4. Volume = ${(M*V*mm/p).toFixed(4)} g / ${d} g/mL = ${volume_mL} mL
+            `;
+        }
+    </script>
+</body>
+</html>
